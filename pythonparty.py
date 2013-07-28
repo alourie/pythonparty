@@ -30,7 +30,7 @@ class Person(object):
         if not kidIncluded:
             return (kidsList + [self], kidsScore, True)
         elif kidsScore > self.score:
-            if ceo:
+            if self.isBoss() and ceo:
                 for child in self.children:
                     for kid in kidsList:
                         if kid.name == child.name:
