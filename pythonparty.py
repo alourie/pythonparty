@@ -13,32 +13,36 @@ class Person(object):
     def getBest(self, ceo=False):
 
         if len(self.children) == 0:
-            return ([self], self.score, True)
+            return ([self], self.score)
 
         kidsList = []
         kidsScore = 0 
         kidIncluded = False
 
         for kid in self.children:
-            tlist, tscore, tincl = kid.getBest()
+            tlist, tscore = kid.getBest()
             if tscore > 0:
                 kidsList.extend(tlist)
-                kidIncluded = kidIncluded or tincl
                 kidsScore += tscore
 
+        
+        for child in self.children:
+            if child in kidsList:
+                kidIncluded = True
+                break
 
         if not kidIncluded:
-            return (kidsList + [self], kidsScore, True)
+            kidsList.append(self)
+            return (kidsList, kidsScore)
         elif kidsScore > self.score:
             if self.isBoss() and ceo:
                 for child in self.children:
-                    for kid in kidsList:
-                        if kid.name == child.name:
-                            kidsList.remove(kid)
+                    if child in kidsList:
+                        kidsList.remove(child)
                 kidsList.append(self)
-            return (kidsList, kidsScore, False)
+            return (kidsList, kidsScore)
         else:
-            return ([self], self.score, True)
+            return ([self], self.score)
 
     def addChild(self, person):
         if person:
@@ -52,7 +56,7 @@ class Person(object):
         }
 
     def printBest(self, ceo=False):
-        tlist, tscore, tincl = self.getBest(ceo)
+        tlist = self.getBest(ceo)[0]
         for person in tlist:
             print person.name
 
@@ -76,6 +80,8 @@ def getBoss(people):
         if person.isBoss():
             return person
 
+    return None
+
 if __name__ == "__main__":
     peoplefile = sys.argv[1]
     people = None
@@ -85,7 +91,12 @@ if __name__ == "__main__":
  
     boss = getBoss(people)
     if boss is not None:
+        # Without CEO
+        print 'List without CEO:\n'
         boss.printBest(ceo=False)
+        # With CEO
+        print '\nList with CEO:\n'
+        boss.printBest(ceo=True)
     
     # The list always having the CEO:
     #printList(people, 'even')
